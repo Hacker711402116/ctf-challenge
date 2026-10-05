@@ -1,0 +1,36 @@
+<!doctype html><html lang=en><head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Nim</title><style>
+:root{--bg:#eef0f6;--ink:#1b1f3b;--ac:#3d5afe;--ok:#1b7f5c;--no:#b3261e;--card:#fff}
+@media(prefers-color-scheme:dark){:root{--bg:#161a33;--ink:#e9ebf8;--card:#222850;--ac:#8c9eff;--ok:#5fd3a5;--no:#ff8a80}}
+*{box-sizing:border-box}body{margin:0 auto;background:var(--bg);color:var(--ink);font:17px/1.5 Georgia,serif;padding:20px;max-width:520px}
+h1{font-size:1.7rem;margin:.2em 0}p{margin:.5em 0}
+button{font:inherit;font-weight:700;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:10px;padding:12px 16px;margin:4px 4px 4px 0;min-height:48px}
+button.go{background:var(--ac);border-color:var(--ac);color:#fff}button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.sticks{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0;min-height:56px}.s{width:12px;height:52px;background:var(--ink);border-radius:3px}
+.msg{font-weight:700;min-height:1.5em}.ok{color:var(--ok)}.no{color:var(--no)}
+code{display:block;word-break:break-all;background:var(--card);border:2px dashed var(--ok);padding:12px;border-radius:8px;margin-top:8px;font-size:1.05rem}
+</style></head><body>
+<h1>Beat the house</h1>
+<p>21 sticks. You go first. Take 1, 2 or 3 per turn. Whoever takes the last stick wins.</p>
+<div class=sticks id=sticks></div><div id=btns></div>
+<p class=msg id=msg></p><div id=out></div>
+<button onclick="newGame()">New game</button>
+<script>
+const E="28050c554a2d212c7c762b3620776e0000004f",K="nim21";
+const $=id=>document.getElementById(id);
+let n,live;
+function flag(){let s="";for(let i=0;i<E.length;i+=2)s+=String.fromCharCode(parseInt(E.substr(i,2),16)^K.charCodeAt(i/2%K.length));return s;}
+function draw(){const s=$('sticks');s.textContent='';for(let i=0;i<n;i++){const d=document.createElement('div');d.className='s';s.appendChild(d);}
+ const b=$('btns');b.textContent='';if(!live)return;
+ for(const t of[1,2,3]){if(t>n)break;const x=document.createElement('button');x.className='go';x.textContent='Take '+t;x.onclick=()=>move(t);b.appendChild(x);}}
+function say(t,c){const m=$('msg');m.textContent=t;m.className='msg '+(c||'');}
+function newGame(){n=21;live=true;$('out').textContent='';say('Your move.');draw();}
+function move(t){if(!live||t<1||t>3||t>n)return;n-=t;
+ if(n===0){live=false;draw();say('You took the last stick. You win!','ok');
+  const c=document.createElement('code');c.textContent=flag();$('out').appendChild(c);return;}
+ const r=n%4,cpu=r||1+Math.floor(Math.random()*Math.min(3,n));n-=cpu;
+ if(n===0){live=false;draw();say('The house took the last stick. Try again.','no');return;}
+ draw();say('The house took '+cpu+'. Your move.');}
+newGame();
+</script></body></html>
